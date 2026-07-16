@@ -66,8 +66,7 @@ const gameState = {
     ghostSpeed: 2000,
     spawnInterval: null,
     timerInterval: null,
-    ghostTimeout: null,
-    powerupTimeout: null,
+    powerupInterval: null,
     ghostsActive: 0,
     maxGhosts: 3
 };
@@ -93,7 +92,9 @@ const CONFIG = {
 
 function showScreen(screenName) {
     Object.values(screens).forEach(screen => screen.classList.remove('active'));
-    screens[screenName].classList.add('active');
+    if (screens[screenName]) {
+        screens[screenName].classList.add('active');
+    }
 }
 
 // ============================================
@@ -115,8 +116,8 @@ function setHighScore(score) {
 
 function updateHighScoreDisplay() {
     const hs = getHighScore();
-    elements.startHighScore.textContent = hs;
-    elements.gameoverHighScore.textContent = hs;
+    if (elements.startHighScore) elements.startHighScore.textContent = hs;
+    if (elements.gameoverHighScore) elements.gameoverHighScore.textContent = hs;
 }
 
 // ============================================
@@ -124,10 +125,10 @@ function updateHighScoreDisplay() {
 // ============================================
 
 function triggerLightning() {
+    if (!elements.lightning) return;
     elements.lightning.classList.add('active');
     setTimeout(() => elements.lightning.classList.remove('active'), 150);
     
-    // Às vezes, dois relâmpagos seguidos
     if (Math.random() < 0.3) {
         setTimeout(() => {
             elements.lightning.classList.add('active');
@@ -139,7 +140,7 @@ function triggerLightning() {
 function startRandomLightning() {
     if (!gameState.isRunning) return;
     
-    const delay = Math.random() * 8000 + 3000; // 3 a 11 segundos
+    const delay = Math.random() * 8000 + 3000;
     setTimeout(() => {
         triggerLightning();
         startRandomLightning();
@@ -147,6 +148,7 @@ function startRandomLightning() {
 }
 
 function showClickEffect(x, y, text) {
+    if (!elements.gameArea) return;
     const effect = document.createElement('div');
     effect.className = 'click-effect';
     effect.textContent = text;
@@ -165,7 +167,7 @@ function playSound(soundName) {
     const sound = sounds[soundName];
     if (sound) {
         sound.currentTime = 0;
-        sound.play().catch(() => {}); // Ignora erros de autoplay
+        sound.play().catch(() => {});
     }
 }
 
@@ -174,34 +176,29 @@ function playSound(soundName) {
 // ============================================
 
 function updateHUD() {
-    elements.score.textContent = gameState.score;
+    if (elements.score) elements.score.textContent = gameState.score;
     
-    if (gameState.combo > 1) {
-        elements.combo.textContent = `x${gameState.combo}`;
-        elements.combo.style.color = 'var(--laranja-claro)';
-    } else {
-        elements.combo.textContent = 'x1';
-        elements.combo.style.color = 'var(--dourado)';
+    if (elements.combo) {
+        if (gameState.combo > 1) {
+            elements.combo.textContent = `x${gameState.combo}`;
+            elements.combo.style.color = '#ff6b1a';
+        } else {
+            elements.combo.textContent = 'x1';
+            elements.combo.style.color = '#c9a84c';
+        }
     }
     
-    // Vidas com emojis
-    const hearts = '💀'.repeat(gameState.lives) + '🖤'.repeat(CONFIG.MAX_LIVES - gameState.lives);
-    elements.lives.textContent = hearts;
+    if (elements.lives) {
+        const hearts = '💀'.repeat(gameState.lives) + '🖤'.repeat(CONFIG.MAX_LIVES - gameState.lives);
+        elements.lives.textContent = hearts;
+    }
     
-    elements.timer.textContent = `${gameState.timeLeft}s`;
-    elements.level.textContent = gameState.level;
+    if (elements.timer) elements.timer.textContent = `${gameState.timeLeft}s`;
+    if (elements.level) elements.level.textContent = gameState.level;
     
-    // Barra de progresso
-    const progress = (gameState.timeLeft / CONFIG.TOTAL_TIME) * 100;
-    elements.progressBar.style.width = progress + '%';
-    
-    // Cor da barra muda conforme tempo
-    if (progress < 25) {
-        elements.progressBar.style.background = 'linear-gradient(90deg, var(--vermelho-vivo), var(--laranja-queimado))';
-    } else if (progress < 50) {
-        elements.progressBar.style.background = 'linear-gradient(90deg, var(--laranja-queimado), var(--dourado))';
-    } else {
-        elements.progressBar.style.background = 'linear-gradient(90deg, var(--roxo-medio), var(--dourado))';
+    if (elements.progressBar) {
+        const progress = (gameState.timeLeft / CONFIG.TOTAL_TIME) * 100;
+        elements.progressBar.style.width = progress + '%';
     }
 }
 
@@ -210,6 +207,7 @@ function updateHUD() {
 // ============================================
 
 function getRandomPosition() {
+    if (!elements.gameArea) return { x: 100, y: 100 };
     const area = elements.gameArea.getBoundingClientRect();
     const padding = 60;
     const x = Math.random() * (area.width - padding * 2) + padding;
@@ -219,6 +217,7 @@ function getRandomPosition() {
 
 function createGhost() {
     if (!gameState.isRunning || gameState.ghostsActive >= gameState.maxGhosts) return;
+    if (!elements.ghostsContainer) return;
     
     const ghost = document.createElement('div');
     ghost.className = 'ghost';
@@ -228,7 +227,6 @@ function createGhost() {
     ghost.style.left = x + 'px';
     ghost.style.top = y + 'px';
     
-    // Evento de clique no fantasma
     ghost.addEventListener('click', (e) => {
         e.stopPropagation();
         onGhostClick(ghost, e);
@@ -237,21 +235,18 @@ function createGhost() {
     elements.ghostsContainer.appendChild(ghost);
     gameState.ghostsActive++;
     
-    // O fantasma desaparece após um tempo
     const timeout = setTimeout(() => {
         if (ghost.parentNode) {
             onGhostMiss(ghost);
         }
     }, gameState.ghostSpeed);
     
-    // Salva o timeout no elemento pra limpar depois
     ghost._timeout = timeout;
 }
 
 function onGhostClick(ghost, event) {
     clearTimeout(ghost._timeout);
     
-    // Pontuação com combo
     const points = CONFIG.POINTS_PER_CLICK * gameState.combo;
     gameState.score += points;
     gameState.combo++;
@@ -259,12 +254,10 @@ function onGhostClick(ghost, event) {
         gameState.maxCombo = gameState.combo;
     }
     
-    // Efeitos
     ghost.classList.add('clicked');
     playSound(gameState.combo > 3 ? 'combo' : 'click');
     showClickEffect(event.offsetX, event.offsetY, `+${points}`);
     
-    // Remove o fantasma
     setTimeout(() => {
         ghost.remove();
         gameState.ghostsActive--;
@@ -277,17 +270,18 @@ function onGhostClick(ghost, event) {
 function onGhostMiss(ghost) {
     ghost.remove();
     gameState.ghostsActive--;
-    gameState.combo = 1; // Reseta o combo
+    gameState.combo = 1;
     gameState.lives--;
     
     playSound('miss');
     updateHUD();
     
-    // Tremer a tela
-    elements.gameArea.style.animation = 'shake 0.3s ease';
-    setTimeout(() => {
-        elements.gameArea.style.animation = '';
-    }, 300);
+    if (elements.gameArea) {
+        elements.gameArea.style.animation = 'shake 0.3s ease';
+        setTimeout(() => {
+            elements.gameArea.style.animation = '';
+        }, 300);
+    }
     
     if (gameState.lives <= 0) {
         endGame();
@@ -295,7 +289,8 @@ function onGhostMiss(ghost) {
 }
 
 // Tremer tela
-const shakeKeyframes = `
+const shakeStyle = document.createElement('style');
+shakeStyle.textContent = `
 @keyframes shake {
     0%, 100% { transform: translateX(0); }
     20% { transform: translateX(-5px); }
@@ -304,18 +299,7 @@ const shakeKeyframes = `
     80% { transform: translateX(5px); }
 }
 `;
-const shakeStyle = document.createElement('style');
-shakeStyle.textContent = shakeKeyframes;
 document.head.appendChild(shakeStyle);
-
-// Clique na área vazia (errou)
-elements.gameArea.addEventListener('click', (e) => {
-    if (!gameState.isRunning) return;
-    if (e.target === elements.gameArea || e.target === elements.ghostsContainer) {
-        gameState.combo = 1;
-        updateHUD();
-    }
-});
 
 // ============================================
 // POWER-UPS
@@ -324,6 +308,7 @@ elements.gameArea.addEventListener('click', (e) => {
 function createPowerup() {
     if (!gameState.isRunning) return;
     if (Math.random() > CONFIG.POWERUP_CHANCE) return;
+    if (!elements.powerupsContainer) return;
     
     const powerups = ['⚡', '❄️', '💎', '🌟'];
     const powerupEmoji = powerups[Math.floor(Math.random() * powerups.length)];
@@ -343,7 +328,6 @@ function createPowerup() {
     
     elements.powerupsContainer.appendChild(powerup);
     
-    // Power-up some após 3 segundos
     setTimeout(() => {
         if (powerup.parentNode) {
             powerup.remove();
@@ -357,29 +341,25 @@ function activatePowerup(powerup, type) {
     
     switch(type) {
         case '⚡':
-            // Dobro de pontos por 5 segundos
             gameState.combo = Math.max(gameState.combo, CONFIG.COMBO_MULTIPLIER);
-            showClickEffect(0, 0, '⚡ 2X PONTOS!');
+            showClickEffect(100, 100, '⚡ 2X PONTOS!');
             break;
         case '❄️':
-            // Slow motion por 3 segundos
             const originalSpeed = gameState.ghostSpeed;
             gameState.ghostSpeed = Math.min(gameState.ghostSpeed * 2, 4000);
-            showClickEffect(0, 0, '❄️ SLOW!');
+            showClickEffect(100, 100, '❄️ SLOW!');
             setTimeout(() => {
                 gameState.ghostSpeed = originalSpeed;
             }, 3000);
             break;
         case '💎':
-            // Bônus de 50 pontos
             gameState.score += 50;
-            showClickEffect(0, 0, '💎 +50!');
+            showClickEffect(100, 100, '💎 +50!');
             break;
         case '🌟':
-            // Recupera 1 vida
             if (gameState.lives < CONFIG.MAX_LIVES) {
                 gameState.lives++;
-                showClickEffect(0, 0, '🌟 +1 VIDA!');
+                showClickEffect(100, 100, '🌟 +1 VIDA!');
             }
             break;
     }
@@ -399,7 +379,7 @@ function checkLevelUp() {
             CONFIG.GHOST_MIN_SPEED,
             CONFIG.GHOST_BASE_SPEED - (newLevel - 1) * CONFIG.SPEED_INCREMENT
         );
-        showClickEffect(0, 0, `⬆ NÍVEL ${newLevel}!`);
+        showClickEffect(200, 200, `⬆ NÍVEL ${newLevel}!`);
         triggerLightning();
     }
 }
@@ -409,23 +389,22 @@ function checkLevelUp() {
 // ============================================
 
 function startSpawning() {
-    // Spawn de fantasmas
+    stopSpawning();
+    
     gameState.spawnInterval = setInterval(() => {
-        if (!gameState.isPaused) {
+        if (!gameState.isPaused && gameState.isRunning) {
             createGhost();
         }
     }, gameState.ghostSpeed / 2);
     
-    // Spawn de power-ups
-    gameState.powerupTimeout = setInterval(() => {
-        if (!gameState.isPaused) {
+    gameState.powerupInterval = setInterval(() => {
+        if (!gameState.isPaused && gameState.isRunning) {
             createPowerup();
         }
     }, 2000);
     
-    // Timer
     gameState.timerInterval = setInterval(() => {
-        if (!gameState.isPaused) {
+        if (!gameState.isPaused && gameState.isRunning) {
             gameState.timeLeft--;
             updateHUD();
             
@@ -437,13 +416,12 @@ function startSpawning() {
 }
 
 function stopSpawning() {
-    clearInterval(gameState.spawnInterval);
-    clearInterval(gameState.timerInterval);
-    clearInterval(gameState.powerupTimeout);
+    if (gameState.spawnInterval) clearInterval(gameState.spawnInterval);
+    if (gameState.timerInterval) clearInterval(gameState.timerInterval);
+    if (gameState.powerupInterval) clearInterval(gameState.powerupInterval);
     
-    // Remove todos os fantasmas
-    elements.ghostsContainer.innerHTML = '';
-    elements.powerupsContainer.innerHTML = '';
+    if (elements.ghostsContainer) elements.ghostsContainer.innerHTML = '';
+    if (elements.powerupsContainer) elements.powerupsContainer.innerHTML = '';
     gameState.ghostsActive = 0;
 }
 
@@ -452,7 +430,6 @@ function stopSpawning() {
 // ============================================
 
 function startGame() {
-    // Reset estado
     gameState.score = 0;
     gameState.combo = 1;
     gameState.maxCombo = 1;
@@ -465,25 +442,17 @@ function startGame() {
     gameState.maxGhosts = CONFIG.MAX_GHOSTS_BASE;
     gameState.ghostsActive = 0;
     
-    // Limpa containers
-    elements.ghostsContainer.innerHTML = '';
-    elements.powerupsContainer.innerHTML = '';
+    if (elements.ghostsContainer) elements.ghostsContainer.innerHTML = '';
+    if (elements.powerupsContainer) elements.powerupsContainer.innerHTML = '';
     
-    // Atualiza HUD
     updateHUD();
-    elements.progressBar.style.width = '100%';
+    if (elements.progressBar) elements.progressBar.style.width = '100%';
     
-    // Mostra tela do jogo
     showScreen('game');
-    
-    // Inicia spawn e timer
     startSpawning();
-    
-    // Inicia relâmpagos aleatórios
     startRandomLightning();
     
-    // Cursor personalizado na área do jogo
-    elements.gameArea.style.cursor = 'crosshair';
+    if (elements.gameArea) elements.gameArea.style.cursor = 'crosshair';
 }
 
 function endGame() {
@@ -493,32 +462,26 @@ function endGame() {
     playSound('gameover');
     triggerLightning();
     
-    // Atualiza high score
-    const isNewHighScore = setHighScore(gameState.score);
+    setHighScore(gameState.score);
     
-    // Atualiza tela final
-    elements.finalScore.textContent = gameState.score;
-    elements.finalCombo.textContent = `Melhor Combo: x${gameState.maxCombo}`;
-    elements.finalLevel.textContent = `Nível Alcançado: ${gameState.level}`;
+    if (elements.finalScore) elements.finalScore.textContent = gameState.score;
+    if (elements.finalCombo) elements.finalCombo.textContent = `Melhor Combo: x${gameState.maxCombo}`;
+    if (elements.finalLevel) elements.finalLevel.textContent = `Nível Alcançado: ${gameState.level}`;
     updateHighScoreDisplay();
     
-    // Se for novo recorde
-    if (isNewHighScore && gameState.score > 0) {
-        elements.finalScore.style.color = 'var(--dourado)';
+    if (elements.finalScore && gameState.score > 0 && gameState.score >= getHighScore()) {
         elements.finalScore.textContent = gameState.score + ' 🏆';
-    } else {
-        elements.finalScore.style.color = 'var(--dourado)';
     }
     
     showScreen('gameover');
-    elements.gameArea.style.cursor = 'default';
+    if (elements.gameArea) elements.gameArea.style.cursor = 'default';
 }
 
 function resetGame() {
     stopSpawning();
     gameState.isRunning = false;
     gameState.isPaused = false;
-    elements.gameArea.style.cursor = 'default';
+    if (elements.gameArea) elements.gameArea.style.cursor = 'default';
     showScreen('start');
     updateHighScoreDisplay();
 }
@@ -539,39 +502,58 @@ function resumeGame() {
 }
 
 // ============================================
-// EVENT LISTENERS
+// EVENT LISTENERS (com verificação)
 // ============================================
 
-elements.startBtn.addEventListener('click', startGame);
-elements.pauseBtn.addEventListener('click', pauseGame);
-elements.resumeBtn.addEventListener('click', resumeGame);
-elements.quitBtn.addEventListener('click', resetGame);
-elements.restartBtn.addEventListener('click', startGame);
-
-// Pausa com tecla ESC ou P
-document.addEventListener('keydown', (e) => {
-    if (e.key === 'Escape' || e.key === 'p' || e.key === 'P') {
-        if (gameState.isRunning && !gameState.isPaused) {
-            pauseGame();
-        } else if (gameState.isPaused) {
-            resumeGame();
-        }
+function setupEventListeners() {
+    if (elements.startBtn) {
+        elements.startBtn.addEventListener('click', startGame);
+    }
+    if (elements.pauseBtn) {
+        elements.pauseBtn.addEventListener('click', pauseGame);
+    }
+    if (elements.resumeBtn) {
+        elements.resumeBtn.addEventListener('click', resumeGame);
+    }
+    if (elements.quitBtn) {
+        elements.quitBtn.addEventListener('click', resetGame);
+    }
+    if (elements.restartBtn) {
+        elements.restartBtn.addEventListener('click', startGame);
     }
     
-    // Enter para iniciar/reiniciar
-    if (e.key === 'Enter') {
-        if (!gameState.isRunning && !gameState.isPaused) {
-            startGame();
+    if (elements.gameArea) {
+        elements.gameArea.addEventListener('click', (e) => {
+            if (!gameState.isRunning) return;
+            if (e.target === elements.gameArea || e.target === elements.ghostsContainer) {
+                gameState.combo = 1;
+                updateHUD();
+            }
+        });
+    }
+    
+    document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape' || e.key === 'p' || e.key === 'P') {
+            if (gameState.isRunning && !gameState.isPaused) {
+                pauseGame();
+            } else if (gameState.isPaused) {
+                resumeGame();
+            }
         }
-    }
-});
-
-// Previne comportamento padrão em mobile
-document.addEventListener('touchmove', (e) => {
-    if (gameState.isRunning) {
-        e.preventDefault();
-    }
-}, { passive: false });
+        
+        if (e.key === 'Enter') {
+            if (!gameState.isRunning && !gameState.isPaused) {
+                startGame();
+            }
+        }
+    });
+    
+    document.addEventListener('touchmove', (e) => {
+        if (gameState.isRunning) {
+            e.preventDefault();
+        }
+    }, { passive: false });
+}
 
 // ============================================
 // INICIALIZAÇÃO
@@ -580,15 +562,16 @@ document.addEventListener('touchmove', (e) => {
 function init() {
     updateHighScoreDisplay();
     showScreen('start');
+    setupEventListeners();
     
-    // Primeiro relâmpago após 2 segundos
     setTimeout(triggerLightning, 2000);
+    
+    console.log('🎃 Haunted Click - Pronto para jogar!');
 }
 
-// Inicia o jogo quando a página carregar
-window.addEventListener('DOMContentLoaded', init);
-
-console.log('🎃 Haunted Click - A Maldição da Casa Abandonada');
-console.log('👻 Clique nos fantasmas para eliminá-los!');
-console.log('💀 Não deixe escapar ou perde uma vida!');
-console.log('🏆 High Score salvo no navegador!');
+// Garante que o DOM está pronto
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', init);
+} else {
+    init();
+}
