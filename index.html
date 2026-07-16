@@ -2,487 +2,757 @@
 <html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Haunted Click - Halloween Game</title>
-    <link href="https://fonts.googleapis.com/css2?family=Creepster&family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>Haunted Click - A Maldição da Casa Abandonada</title>
+    <link href="https://fonts.googleapis.com/css2?family=Creepster&family=Inter:wght@400;600;700;900&display=swap" rel="stylesheet">
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
+        :root {
+            --bg: #0a0a0f;
+            --card: #13131a;
+            --laranja: #ff6b2b;
+            --laranja-escuro: #c75100;
+            --roxo: #6b3fa0;
+            --roxo-escuro: #2d1b4e;
+            --dourado: #f0c050;
+            --vermelho: #e03030;
+            --texto: #e8e8e8;
+            --texto-claro: rgba(255,255,255,0.5);
         }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
 
         body {
             font-family: 'Inter', sans-serif;
-            background: #0a0a0a;
-            color: #e8e8e8;
+            background: var(--bg);
+            background-image: 
+                radial-gradient(ellipse at 50% 0%, rgba(107, 63, 160, 0.15) 0%, transparent 60%),
+                radial-gradient(ellipse at 80% 100%, rgba(255, 107, 43, 0.08) 0%, transparent 50%);
+            color: var(--texto);
             display: flex;
             align-items: center;
             justify-content: center;
             min-height: 100vh;
             overflow: hidden;
             user-select: none;
+            -webkit-user-select: none;
+            -webkit-tap-highlight-color: transparent;
+            padding: 10px;
         }
 
-        .game-container {
-            width: 100%;
-            max-width: 800px;
-            height: 95vh;
-            max-height: 700px;
-            background: #111;
-            border: 2px solid rgba(255,255,255,0.05);
-            border-radius: 24px;
-            box-shadow: 0 8px 32px rgba(0,0,0,0.4);
+        /* Névoa animada */
+        .fog {
+            position: fixed;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            pointer-events: none;
+            z-index: 0;
+            background: 
+                radial-gradient(ellipse at 20% 50%, rgba(200,200,200,0.04) 0%, transparent 50%),
+                radial-gradient(ellipse at 80% 30%, rgba(200,200,200,0.03) 0%, transparent 50%);
+            animation: fogDrift 8s ease-in-out infinite;
+        }
+
+        @keyframes fogDrift {
+            0%, 100% { transform: translateX(0); opacity: 0.5; }
+            50% { transform: translateX(20px); opacity: 1; }
+        }
+
+        .game-wrapper {
             position: relative;
+            z-index: 1;
+            width: 100%;
+            max-width: 500px;
+            background: var(--card);
+            border: 2px solid rgba(255,255,255,0.06);
+            border-radius: 28px;
+            box-shadow: 
+                0 20px 60px rgba(0,0,0,0.5),
+                0 0 80px rgba(107, 63, 160, 0.1),
+                inset 0 1px 0 rgba(255,255,255,0.03);
             overflow: hidden;
         }
 
         .screen {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
             display: none;
             flex-direction: column;
             align-items: center;
             justify-content: center;
-            padding: 32px;
+            padding: 40px 28px;
+            min-height: 600px;
             text-align: center;
         }
 
-        .screen.active {
-            display: flex;
+        .screen.active { display: flex; }
+
+        /* ========== TELA INICIAL ========== */
+        .start-screen {
+            gap: 12px;
+            background: radial-gradient(ellipse at 50% 100%, rgba(45,27,78,0.3) 0%, transparent 60%);
         }
 
-        /* Tela Inicial */
-        .start-screen {
-            background: radial-gradient(ellipse at center bottom, rgba(45, 27, 78, 0.4) 0%, transparent 70%), #111;
-            gap: 16px;
+        .logo-area {
+            position: relative;
+            margin-bottom: 8px;
         }
 
         .moon {
             width: 100px;
             height: 100px;
-            background: radial-gradient(circle at 30% 30%, #e0c878, #c9a84c);
+            background: radial-gradient(circle at 35% 35%, #f0d878, #c9a030);
             border-radius: 50%;
-            box-shadow: 0 0 40px rgba(201, 168, 76, 0.5);
-            animation: moonGlow 3s ease-in-out infinite;
+            box-shadow: 
+                0 0 50px rgba(240, 192, 80, 0.5),
+                0 0 100px rgba(240, 192, 80, 0.2);
+            animation: moonPulse 2.5s ease-in-out infinite;
+            margin: 0 auto;
         }
 
-        @keyframes moonGlow {
-            0%, 100% { box-shadow: 0 0 40px rgba(201, 168, 76, 0.5); }
-            50% { box-shadow: 0 0 60px rgba(201, 168, 76, 0.7); }
+        @keyframes moonPulse {
+            0%, 100% { box-shadow: 0 0 50px rgba(240, 192, 80, 0.5), 0 0 100px rgba(240, 192, 80, 0.2); }
+            50% { box-shadow: 0 0 70px rgba(240, 192, 80, 0.7), 0 0 130px rgba(240, 192, 80, 0.3); }
         }
 
-        .bats {
-            font-size: 24px;
+        .bats-container {
+            position: absolute;
+            top: -15px;
+            left: -20px;
+            right: -20px;
+            pointer-events: none;
+            animation: batsSwing 3s ease-in-out infinite;
+        }
+
+        @keyframes batsSwing {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(15px) translateY(-5px); }
+            75% { transform: translateX(-15px) translateY(5px); }
+        }
+
+        .bat-emoji {
+            position: absolute;
+            font-size: 28px;
             animation: batFly 4s linear infinite;
         }
 
+        .bat-emoji:nth-child(1) { top: 0; left: 30%; animation-delay: 0s; }
+        .bat-emoji:nth-child(2) { top: 20px; right: 20%; animation-delay: -1.5s; font-size: 20px; }
+        .bat-emoji:nth-child(3) { top: -10px; left: 60%; animation-delay: -3s; font-size: 22px; }
+
         @keyframes batFly {
-            0%, 100% { transform: translateX(0); }
-            50% { transform: translateX(30px); }
+            0%, 100% { transform: translateY(0) rotate(0deg); }
+            25% { transform: translateY(-15px) rotate(-5deg); }
+            75% { transform: translateY(10px) rotate(5deg); }
         }
 
         .game-title {
             font-family: 'Creepster', cursive;
-            font-size: 3rem;
-            text-shadow: 2px 2px 0 rgba(0,0,0,0.5);
+            font-size: clamp(2.5rem, 7vw, 3.5rem);
+            line-height: 0.9;
+            text-shadow: 3px 3px 0 rgba(0,0,0,0.6);
         }
 
         .title-haunted {
-            color: #c75100;
             display: block;
+            color: var(--laranja);
+            animation: titleGlitch 3s infinite;
+        }
+
+        @keyframes titleGlitch {
+            0%, 100% { text-shadow: 3px 3px 0 rgba(0,0,0,0.6); }
+            2% { text-shadow: -3px 3px 0 rgba(255,0,0,0.4), 3px -3px 0 rgba(0,0,255,0.3); }
+            4% { text-shadow: 3px 3px 0 rgba(0,0,0,0.6); }
         }
 
         .title-click {
-            color: #c9a84c;
             display: block;
-            font-size: 1.2em;
+            color: var(--dourado);
+            font-size: 1.3em;
+            margin-top: -5px;
         }
 
         .subtitle {
+            color: var(--texto-claro);
             font-size: 0.8rem;
-            color: rgba(255,255,255,0.5);
-            letter-spacing: 3px;
             text-transform: uppercase;
+            letter-spacing: 4px;
+            margin-top: 4px;
+        }
+
+        .house-icon {
+            font-size: 56px;
+            animation: houseFloat 2s ease-in-out infinite;
+            margin: 8px 0;
+        }
+
+        @keyframes houseFloat {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-12px); }
         }
 
         .btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
             font-family: 'Inter', sans-serif;
             font-weight: 700;
-            border: none;
-            border-radius: 12px;
-            cursor: pointer;
-            padding: 16px 40px;
-            font-size: 1.1rem;
+            font-size: 1.05rem;
             text-transform: uppercase;
-            letter-spacing: 1px;
-            transition: all 0.2s;
+            letter-spacing: 2px;
+            border: none;
+            border-radius: 16px;
+            padding: 18px 36px;
+            cursor: pointer;
+            transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            overflow: hidden;
         }
 
-        .btn-start {
-            background: linear-gradient(135deg, #c75100, #8b0000);
+        .btn:active { transform: scale(0.95); }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--laranja), #e05020);
             color: white;
-            box-shadow: 0 4px 0 rgba(0,0,0,0.3), 0 0 30px rgba(199, 81, 0, 0.3);
-            animation: pulse 2s infinite;
+            box-shadow: 0 6px 0 #8b2000, 0 0 40px rgba(255, 107, 43, 0.3);
+            font-size: 1.1rem;
+            padding: 20px 44px;
+            animation: btnGlow 2s ease-in-out infinite;
         }
 
-        @keyframes pulse {
-            0%, 100% { box-shadow: 0 4px 0 rgba(0,0,0,0.3), 0 0 30px rgba(199, 81, 0, 0.3); }
-            50% { box-shadow: 0 4px 0 rgba(0,0,0,0.3), 0 0 50px rgba(199, 81, 0, 0.5); }
+        .btn-primary:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 0 #8b2000, 0 0 60px rgba(255, 107, 43, 0.5);
         }
 
-        .btn-start:hover {
-            transform: translateY(-2px);
+        @keyframes btnGlow {
+            0%, 100% { box-shadow: 0 6px 0 #8b2000, 0 0 40px rgba(255, 107, 43, 0.3); }
+            50% { box-shadow: 0 6px 0 #8b2000, 0 0 60px rgba(255, 107, 43, 0.5); }
         }
 
-        .btn-restart {
-            background: linear-gradient(135deg, #4a2d7a, #2d1b4e);
+        .btn-secondary {
+            background: linear-gradient(135deg, var(--roxo), #5a2d8a);
             color: white;
-            box-shadow: 0 4px 0 rgba(0,0,0,0.3);
+            box-shadow: 0 4px 0 #1a0a30;
         }
 
-        .high-score {
-            color: #c9a84c;
+        .high-score-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: rgba(240, 192, 80, 0.1);
+            border: 1px solid rgba(240, 192, 80, 0.25);
+            color: var(--dourado);
+            padding: 10px 20px;
+            border-radius: 30px;
             font-size: 0.9rem;
-            background: rgba(201, 168, 76, 0.1);
-            padding: 8px 16px;
-            border-radius: 20px;
-            border: 1px solid rgba(201, 168, 76, 0.2);
+            font-weight: 600;
         }
 
-        /* Tela do Jogo */
+        .tips {
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+            justify-content: center;
+            font-size: 0.7rem;
+            color: var(--texto-claro);
+            margin-top: 8px;
+        }
+
+        .tips span {
+            background: rgba(255,255,255,0.03);
+            border: 1px solid rgba(255,255,255,0.06);
+            padding: 6px 14px;
+            border-radius: 20px;
+        }
+
+        /* ========== TELA DO JOGO ========== */
         .game-screen {
-            background: radial-gradient(ellipse at center, rgba(45, 27, 78, 0.3) 0%, transparent 60%), #111;
             padding: 16px;
             gap: 12px;
+            min-height: 600px;
         }
 
         .hud {
             display: flex;
-            gap: 12px;
-            justify-content: center;
-            flex-wrap: wrap;
-            padding: 12px;
-            background: rgba(0,0,0,0.4);
-            border-radius: 16px;
-            border: 1px solid rgba(255,255,255,0.05);
+            gap: 8px;
+            justify-content: space-between;
+            width: 100%;
+            padding: 12px 16px;
+            background: rgba(0,0,0,0.5);
+            border-radius: 20px;
+            border: 1px solid rgba(255,255,255,0.06);
+            backdrop-filter: blur(10px);
         }
 
         .hud-item {
             text-align: center;
-            min-width: 60px;
+            flex: 1;
         }
 
+        .hud-icon { font-size: 1.4rem; display: block; }
+
         .hud-label {
-            font-size: 0.6rem;
+            font-size: 0.55rem;
             text-transform: uppercase;
-            color: rgba(255,255,255,0.4);
+            letter-spacing: 1px;
+            color: var(--texto-claro);
+            margin: 2px 0;
         }
 
         .hud-value {
             font-family: 'Creepster', cursive;
-            font-size: 1.3rem;
-            color: #c9a84c;
+            font-size: 1.2rem;
+            color: var(--dourado);
+            text-shadow: 0 0 10px rgba(240, 192, 80, 0.3);
+        }
+
+        .hud-value.combo-active {
+            color: var(--laranja) !important;
+            animation: comboFlash 0.5s ease;
+        }
+
+        @keyframes comboFlash {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.3); }
         }
 
         .game-area {
             flex: 1;
             width: 100%;
-            background: rgba(0,0,0,0.3);
-            border-radius: 16px;
-            border: 1px solid rgba(255,255,255,0.05);
+            background: 
+                radial-gradient(ellipse at 50% 100%, rgba(45,27,78,0.3) 0%, transparent 60%),
+                rgba(0,0,0,0.3);
+            border-radius: 20px;
+            border: 2px solid rgba(255,255,255,0.06);
             position: relative;
             overflow: hidden;
             cursor: crosshair;
+            min-height: 350px;
         }
 
+        /* Janelas da casa */
+        .window-decoration {
+            position: absolute;
+            bottom: 30%;
+            width: 35px;
+            height: 45px;
+            background: rgba(255, 180, 50, 0.12);
+            border: 2px solid rgba(0,0,0,0.6);
+            border-radius: 4px;
+            pointer-events: none;
+            animation: windowFlicker 2.5s ease-in-out infinite;
+        }
+
+        .window-decoration:nth-child(1) { left: 18%; animation-delay: 0s; }
+        .window-decoration:nth-child(2) { left: 48%; bottom: 35%; animation-delay: -0.8s; }
+        .window-decoration:nth-child(3) { right: 18%; animation-delay: -1.6s; }
+
+        @keyframes windowFlicker {
+            0%, 100% { background: rgba(255, 180, 50, 0.08); box-shadow: none; }
+            30% { background: rgba(255, 180, 50, 0.2); box-shadow: 0 0 15px rgba(255, 180, 50, 0.3); }
+            60% { background: rgba(255, 180, 50, 0.05); box-shadow: none; }
+        }
+
+        /* Fantasmas */
         .ghost {
             position: absolute;
-            font-size: 50px;
+            font-size: 55px;
             cursor: pointer;
-            animation: ghostAppear 0.3s ease-out;
-            transition: transform 0.2s;
+            pointer-events: all;
             z-index: 10;
+            animation: ghostSpawn 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
+            transition: transform 0.15s ease;
+            filter: drop-shadow(0 0 12px rgba(255, 107, 43, 0.5));
         }
 
-        .ghost:hover {
-            transform: scale(1.2);
+        .ghost:active { transform: scale(0.8); }
+
+        @keyframes ghostSpawn {
+            from { transform: scale(0) rotate(30deg); opacity: 0; }
+            to { transform: scale(1) rotate(0deg); opacity: 1; }
         }
 
-        @keyframes ghostAppear {
-            from { transform: scale(0); opacity: 0; }
-            to { transform: scale(1); opacity: 1; }
+        .ghost.killed {
+            animation: ghostDeath 0.35s ease-out forwards;
+            pointer-events: none;
         }
 
-        .progress-bar-container {
+        @keyframes ghostDeath {
+            0% { transform: scale(1); opacity: 1; filter: drop-shadow(0 0 12px rgba(255, 107, 43, 0.5)); }
+            100% { transform: scale(2.5) rotate(20deg); opacity: 0; filter: blur(8px) drop-shadow(0 0 30px rgba(255, 200, 50, 0.8)); }
+        }
+
+        /* Efeito de clique */
+        .score-pop {
+            position: absolute;
+            pointer-events: none;
+            z-index: 50;
+            font-family: 'Inter', sans-serif;
+            font-weight: 900;
+            font-size: 22px;
+            color: var(--dourado);
+            text-shadow: 0 0 10px rgba(240, 192, 80, 0.8);
+            animation: scoreFloat 0.7s ease-out forwards;
+        }
+
+        @keyframes scoreFloat {
+            0% { opacity: 1; transform: translateY(0) scale(1); }
+            100% { opacity: 0; transform: translateY(-60px) scale(1.4); }
+        }
+
+        .progress-wrap {
             width: 100%;
-            height: 6px;
-            background: rgba(255,255,255,0.05);
-            border-radius: 3px;
+            height: 8px;
+            background: rgba(255,255,255,0.04);
+            border-radius: 4px;
             overflow: hidden;
         }
 
-        .progress-bar {
+        .progress-fill {
             height: 100%;
-            background: linear-gradient(90deg, #c75100, #c9a84c);
-            transition: width 0.3s;
+            background: linear-gradient(90deg, var(--laranja), var(--dourado));
+            border-radius: 4px;
+            transition: width 0.3s linear;
         }
 
-        /* Tela Game Over */
+        .btn-pause {
+            position: absolute;
+            top: 16px;
+            right: 16px;
+            background: rgba(0,0,0,0.6);
+            border: 1px solid rgba(255,255,255,0.15);
+            color: white;
+            width: 42px;
+            height: 42px;
+            border-radius: 14px;
+            font-size: 1.2rem;
+            cursor: pointer;
+            z-index: 20;
+            backdrop-filter: blur(10px);
+        }
+
+        /* ========== TELA GAME OVER ========== */
         .gameover-screen {
-            background: radial-gradient(ellipse at center, rgba(139, 0, 0, 0.3) 0%, transparent 60%), #111;
-            gap: 16px;
+            gap: 14px;
+            background: radial-gradient(ellipse at 50% 0%, rgba(200, 30, 30, 0.2) 0%, transparent 60%);
         }
 
-        .skull {
-            font-size: 72px;
+        .skull-icon {
+            font-size: 80px;
+            animation: skullShake 0.6s ease-in-out;
+        }
+
+        @keyframes skullShake {
+            0%, 100% { transform: rotate(0); }
+            25% { transform: rotate(-15deg); }
+            75% { transform: rotate(15deg); }
         }
 
         .gameover-title {
             font-family: 'Creepster', cursive;
             font-size: 2rem;
-            color: #c0392b;
+            color: #e04040;
+            text-shadow: 2px 2px 0 rgba(0,0,0,0.5), 0 0 30px rgba(200, 30, 30, 0.5);
         }
 
-        .final-score {
-            font-family: 'Creepster', cursive;
-            font-size: 3rem;
-            color: #c9a84c;
-        }
-
-        .instructions {
-            font-size: 0.75rem;
-            color: rgba(255,255,255,0.4);
-            display: flex;
-            gap: 16px;
-            flex-wrap: wrap;
-            justify-content: center;
-        }
-
-        .instructions span {
+        .final-score-card {
             background: rgba(255,255,255,0.03);
-            padding: 6px 12px;
-            border-radius: 6px;
-            border: 1px solid rgba(255,255,255,0.05);
+            border: 1px solid rgba(255,255,255,0.08);
+            border-radius: 20px;
+            padding: 20px 28px;
         }
 
-        @media (max-width: 600px) {
-            .game-container {
-                height: 100vh;
-                max-height: 100vh;
+        .final-score-label {
+            font-size: 0.7rem;
+            text-transform: uppercase;
+            letter-spacing: 3px;
+            color: var(--texto-claro);
+        }
+
+        .final-score-value {
+            font-family: 'Creepster', cursive;
+            font-size: 3.5rem;
+            color: var(--dourado);
+            text-shadow: 0 0 25px rgba(240, 192, 80, 0.5);
+        }
+
+        .final-details {
+            font-size: 0.8rem;
+            color: var(--texto-claro);
+            margin-top: 4px;
+        }
+
+        /* ========== RESPONSIVO ========== */
+        @media (max-width: 500px) {
+            .game-wrapper {
                 border-radius: 0;
+                border: none;
+                min-height: 100vh;
+            }
+            .screen {
+                min-height: 100vh;
+                padding: 24px 16px;
             }
             .ghost {
-                font-size: 40px;
+                font-size: 45px;
             }
-            .game-title {
-                font-size: 2rem;
+            .hud {
+                gap: 4px;
+                padding: 8px 10px;
+            }
+            .hud-value {
+                font-size: 1rem;
             }
         }
     </style>
 </head>
 <body>
 
-    <div class="game-container">
-        
-        <!-- TELA INICIAL -->
+    <div class="fog"></div>
+
+    <div class="game-wrapper">
+
+        <!-- ========== TELA INICIAL ========== -->
         <div class="screen start-screen active" id="startScreen">
-            <div class="moon"></div>
-            <div class="bats">🦇</div>
+            <div class="logo-area">
+                <div class="moon"></div>
+                <div class="bats-container">
+                    <span class="bat-emoji">🦇</span>
+                    <span class="bat-emoji">🦇</span>
+                    <span class="bat-emoji">🦇</span>
+                </div>
+            </div>
+
             <div class="game-title">
                 <span class="title-haunted">HAUNTED</span>
                 <span class="title-click">CLICK</span>
             </div>
             <p class="subtitle">A Maldição da Casa Abandonada</p>
-            <button class="btn btn-start" id="startBtn" onclick="startGame()">
+
+            <div class="house-icon">🏚️</div>
+
+            <button class="btn btn-primary" onclick="startGame()">
                 🚪 ENTRAR NA CASA
             </button>
-            <div class="high-score">
+
+            <div class="high-score-badge">
                 🏆 Recorde: <strong id="highScoreDisplay">0</strong>
             </div>
-            <div class="instructions">
+
+            <div class="tips">
                 <span>🖱️ Clique nos fantasmas</span>
-                <span>⚡ Combos = +pontos</span>
-                <span>💀 3 vidas</span>
+                <span>⚡ Combos aumentam pontos</span>
+                <span>💀 Cuidado com as vidas</span>
             </div>
         </div>
 
-        <!-- TELA DO JOGO -->
+        <!-- ========== TELA DO JOGO ========== -->
         <div class="screen game-screen" id="gameScreen">
             <div class="hud">
                 <div class="hud-item">
-                    <div class="hud-label">Score</div>
-                    <div class="hud-value" id="scoreDisplay">0</div>
+                    <span class="hud-icon">🎯</span>
+                    <span class="hud-label">Score</span>
+                    <span class="hud-value" id="scoreDisplay">0</span>
                 </div>
                 <div class="hud-item">
-                    <div class="hud-label">Combo</div>
-                    <div class="hud-value" id="comboDisplay">x1</div>
+                    <span class="hud-icon">⚡</span>
+                    <span class="hud-label">Combo</span>
+                    <span class="hud-value" id="comboDisplay">x1</span>
                 </div>
                 <div class="hud-item">
-                    <div class="hud-label">Vidas</div>
-                    <div class="hud-value" id="livesDisplay">💀💀💀</div>
+                    <span class="hud-icon">💀</span>
+                    <span class="hud-label">Vidas</span>
+                    <span class="hud-value" id="livesDisplay">💀💀💀</span>
                 </div>
                 <div class="hud-item">
-                    <div class="hud-label">Tempo</div>
-                    <div class="hud-value" id="timerDisplay">60s</div>
+                    <span class="hud-icon">⏱️</span>
+                    <span class="hud-label">Tempo</span>
+                    <span class="hud-value" id="timerDisplay">60s</span>
                 </div>
                 <div class="hud-item">
-                    <div class="hud-label">Nível</div>
-                    <div class="hud-value" id="levelDisplay">1</div>
+                    <span class="hud-icon">📊</span>
+                    <span class="hud-label">Nível</span>
+                    <span class="hud-value" id="levelDisplay">1</span>
                 </div>
             </div>
 
             <div class="game-area" id="gameArea">
-                <!-- Fantasmas aparecem aqui -->
+                <!-- Janelas decorativas -->
+                <div class="window-decoration"></div>
+                <div class="window-decoration"></div>
+                <div class="window-decoration"></div>
+                <!-- Fantasmas gerados aqui -->
             </div>
 
-            <div class="progress-bar-container">
-                <div class="progress-bar" id="progressBar" style="width: 100%"></div>
+            <div class="progress-wrap">
+                <div class="progress-fill" id="progressBar" style="width:100%"></div>
             </div>
 
-            <button class="btn btn-start" style="padding:8px 16px;font-size:0.8rem;position:absolute;top:12px;right:12px;z-index:20;" onclick="pauseGame()">
-                ⏸️
-            </button>
+            <button class="btn-pause" onclick="togglePause()" title="Pausar">⏸️</button>
         </div>
 
-        <!-- TELA GAME OVER -->
+        <!-- ========== TELA GAME OVER ========== -->
         <div class="screen gameover-screen" id="gameoverScreen">
-            <div class="skull">💀</div>
+            <div class="skull-icon">💀</div>
             <h2 class="gameover-title">VOCÊ FOI AMALDIÇOADO!</h2>
-            <p style="color:rgba(255,255,255,0.5)">Pontuação Final</p>
-            <div class="final-score" id="finalScoreDisplay">0</div>
-            <p style="color:rgba(255,255,255,0.5);font-size:0.85rem" id="finalStats"></p>
-            <div class="high-score" id="gameoverHighScore">
+
+            <div class="final-score-card">
+                <p class="final-score-label">Pontuação Final</p>
+                <p class="final-score-value" id="finalScoreDisplay">0</p>
+                <p class="final-details" id="finalStats"></p>
+            </div>
+
+            <div class="high-score-badge" id="gameoverHighScore">
                 🏆 Recorde: <strong id="gameoverHSValue">0</strong>
             </div>
-            <button class="btn btn-restart" onclick="restartGame()">
+
+            <button class="btn btn-secondary" onclick="restartGame()">
                 🔄 JOGAR NOVAMENTE
             </button>
         </div>
+
     </div>
 
     <script>
         // ============================================
-        // HAUNTED CLICK - JOGO SIMPLES E FUNCIONAL
+        // HAUNTED CLICK 2.0 - PROFESSIONAL
         // ============================================
 
-        var score = 0;
-        var combo = 1;
-        var maxCombo = 1;
-        var lives = 3;
-        var timeLeft = 60;
-        var level = 1;
-        var isRunning = false;
-        var isPaused = false;
-        var ghostSpeed = 2000;
-        var maxGhosts = 3;
-        var ghostsActive = 0;
-        var spawnInterval = null;
-        var timerInterval = null;
+        var score, combo, maxCombo, lives, timeLeft, level;
+        var isRunning, isPaused, ghostSpeed, maxGhosts, ghostsActive;
+        var spawnInterval, timerInterval, difficultyInterval;
+        var highScore = parseInt(localStorage.getItem('hauntedHS2')) || 0;
 
-        // Sons
         function playSound(type) {
             try {
                 var s = new Audio();
                 if (type === 'click') s.src = 'https://www.soundjay.com/buttons/sounds/button-09.mp3';
+                else if (type === 'combo') s.src = 'https://www.soundjay.com/buttons/sounds/button-28.mp3';
                 else if (type === 'miss') s.src = 'https://www.soundjay.com/buttons/sounds/button-10.mp3';
                 else if (type === 'gameover') s.src = 'https://www.soundjay.com/misc/sounds/fail-buzzer-01.mp3';
+                s.volume = 0.3;
                 s.play().catch(function(){});
             } catch(e) {}
         }
 
-        function showScreen(name) {
-            document.getElementById('startScreen').classList.remove('active');
-            document.getElementById('gameScreen').classList.remove('active');
-            document.getElementById('gameoverScreen').classList.remove('active');
-            document.getElementById(name).classList.add('active');
+        function showScreen(id) {
+            ['startScreen', 'gameScreen', 'gameoverScreen'].forEach(function(s) {
+                document.getElementById(s).classList.remove('active');
+            });
+            document.getElementById(id).classList.add('active');
         }
 
-        function getHS() {
-            return parseInt(localStorage.getItem('hauntedHS')) || 0;
-        }
-
-        function saveHS(s) {
-            if (s > getHS()) localStorage.setItem('hauntedHS', s);
-        }
-
-        function updateHSDisplay() {
-            var hs = getHS();
-            document.getElementById('highScoreDisplay').textContent = hs;
-            document.getElementById('gameoverHSValue').textContent = hs;
+        function updateHS() {
+            document.getElementById('highScoreDisplay').textContent = highScore;
+            document.getElementById('gameoverHSValue').textContent = highScore;
         }
 
         function updateHUD() {
             document.getElementById('scoreDisplay').textContent = score;
-            document.getElementById('comboDisplay').textContent = 'x' + combo;
+            
+            var comboEl = document.getElementById('comboDisplay');
+            comboEl.textContent = 'x' + combo;
+            if (combo >= 5) {
+                comboEl.classList.add('combo-active');
+                setTimeout(function() { comboEl.classList.remove('combo-active'); }, 500);
+            }
+            
             document.getElementById('timerDisplay').textContent = timeLeft + 's';
             document.getElementById('levelDisplay').textContent = level;
             
-            // Vidas
+            var livesEl = document.getElementById('livesDisplay');
             var h = '';
             for (var i = 0; i < lives; i++) h += '💀';
             for (var i = lives; i < 3; i++) h += '🖤';
-            document.getElementById('livesDisplay').textContent = h;
+            livesEl.textContent = h;
             
-            // Progresso
             document.getElementById('progressBar').style.width = (timeLeft / 60 * 100) + '%';
         }
 
-        function createGhost() {
+        function spawnGhost() {
             if (!isRunning || isPaused || ghostsActive >= maxGhosts) return;
             
             var area = document.getElementById('gameArea');
+            if (!area) return;
+            
             var ghost = document.createElement('div');
             ghost.className = 'ghost';
-            ghost.textContent = '👻';
-            ghost.style.left = Math.random() * (area.clientWidth - 60) + 'px';
-            ghost.style.top = Math.random() * (area.clientHeight - 60) + 'px';
             
-            ghost.onclick = function(e) {
+            // Variedade de fantasmas
+            var ghosts = ['👻', '👻', '👻', '👾', '💀'];
+            ghost.textContent = ghosts[Math.floor(Math.random() * ghosts.length)];
+            
+            var maxX = area.clientWidth - 60;
+            var maxY = area.clientHeight - 60;
+            ghost.style.left = Math.max(10, Math.random() * maxX) + 'px';
+            ghost.style.top = Math.max(10, Math.random() * maxY) + 'px';
+            
+            // Movimento suave
+            ghost.style.transition = 'all ' + (ghostSpeed / 1000) + 's linear';
+            
+            ghost.addEventListener('click', function(e) {
                 e.stopPropagation();
+                if (!isRunning || isPaused) return;
+                
                 var pts = 10 * combo;
                 score += pts;
                 combo++;
                 if (combo > maxCombo) maxCombo = combo;
                 
-                // Efeito
-                ghost.style.transform = 'scale(2)';
-                ghost.style.opacity = '0';
-                ghost.style.transition = 'all 0.3s';
+                // Efeito visual
+                ghost.classList.add('killed');
                 
-                playSound('click');
+                // Popup de score
+                var pop = document.createElement('div');
+                pop.className = 'score-pop';
+                pop.textContent = '+' + pts;
+                pop.style.left = ghost.style.left;
+                pop.style.top = ghost.style.top;
+                area.appendChild(pop);
+                setTimeout(function() { pop.remove(); }, 700);
+                
+                playSound(combo >= 5 ? 'combo' : 'click');
                 
                 setTimeout(function() {
-                    ghost.remove();
-                    ghostsActive--;
-                }, 300);
+                    if (ghost.parentNode) {
+                        ghost.remove();
+                        ghostsActive--;
+                    }
+                }, 350);
                 
                 // Level up
-                var newLevel = Math.floor(score / 100) + 1;
+                var newLevel = Math.floor(score / 150) + 1;
                 if (newLevel > level) {
                     level = newLevel;
-                    maxGhosts = 3 + Math.floor((level - 1) / 2);
-                    ghostSpeed = Math.max(800, 2000 - (level - 1) * 150);
+                    maxGhosts = Math.min(8, 3 + Math.floor((level - 1) / 2));
+                    ghostSpeed = Math.max(600, 2200 - (level - 1) * 180);
                 }
                 
                 updateHUD();
-            };
+            });
             
             area.appendChild(ghost);
             ghostsActive++;
             
-            // Timeout - fantasma foge
+            // Fantasma some sozinho
             var timeout = setTimeout(function() {
-                if (ghost.parentNode) {
-                    ghost.remove();
-                    ghostsActive--;
+                if (ghost.parentNode && !ghost.classList.contains('killed')) {
+                    ghost.style.opacity = '0';
+                    ghost.style.transform = 'scale(0.5)';
+                    setTimeout(function() {
+                        if (ghost.parentNode) {
+                            ghost.remove();
+                            ghostsActive--;
+                        }
+                    }, 300);
                     combo = 1;
                     lives--;
                     playSound('miss');
                     updateHUD();
+                    
+                    // Tremer tela
+                    area.style.transform = 'translateX(-4px)';
+                    setTimeout(function() { area.style.transform = ''; }, 100);
+                    setTimeout(function() { area.style.transform = 'translateX(4px)'; }, 200);
+                    setTimeout(function() { area.style.transform = ''; }, 300);
                     
                     if (lives <= 0) endGame();
                 }
@@ -492,8 +762,7 @@
         }
 
         function startGame() {
-            console.log('🎃 Iniciando jogo...');
-            
+            // Reset
             score = 0;
             combo = 1;
             maxCombo = 1;
@@ -502,80 +771,98 @@
             level = 1;
             isRunning = true;
             isPaused = false;
-            ghostSpeed = 2000;
+            ghostSpeed = 2200;
             maxGhosts = 3;
             ghostsActive = 0;
             
-            document.getElementById('gameArea').innerHTML = '';
+            var area = document.getElementById('gameArea');
+            area.innerHTML = '';
+            
+            // Recriar janelas decorativas
+            for (var i = 0; i < 3; i++) {
+                var win = document.createElement('div');
+                win.className = 'window-decoration';
+                area.appendChild(win);
+            }
             
             updateHUD();
             showScreen('gameScreen');
             
-            // Spawn de fantasmas
+            // Spawn loop
+            clearInterval(spawnInterval);
             spawnInterval = setInterval(function() {
-                createGhost();
-            }, 1000);
+                if (!isPaused) spawnGhost();
+            }, 800);
             
             // Timer
+            clearInterval(timerInterval);
             timerInterval = setInterval(function() {
-                if (!isPaused) {
+                if (!isPaused && isRunning) {
                     timeLeft--;
                     updateHUD();
                     if (timeLeft <= 0) endGame();
                 }
             }, 1000);
+            
+            // Aumenta dificuldade gradualmente
+            clearInterval(difficultyInterval);
+            difficultyInterval = setInterval(function() {
+                if (!isPaused && isRunning && ghostSpeed > 600) {
+                    ghostSpeed = Math.max(600, ghostSpeed - 40);
+                    maxGhosts = Math.min(8, maxGhosts + 0.3);
+                }
+            }, 5000);
         }
 
         function endGame() {
             isRunning = false;
             clearInterval(spawnInterval);
             clearInterval(timerInterval);
+            clearInterval(difficultyInterval);
             
             playSound('gameover');
-            saveHS(score);
+            
+            if (score > highScore) {
+                highScore = score;
+                localStorage.setItem('hauntedHS2', highScore);
+            }
             
             document.getElementById('finalScoreDisplay').textContent = score;
-            document.getElementById('finalStats').textContent = 'Combo Max: x' + maxCombo + ' | Nível: ' + level;
-            updateHSDisplay();
+            document.getElementById('finalStats').textContent = 
+                'Combo Max: x' + maxCombo + '  •  Nível: ' + level;
+            updateHS();
             
             showScreen('gameoverScreen');
-            console.log('💀 Game Over! Score: ' + score);
         }
 
         function restartGame() {
             clearInterval(spawnInterval);
             clearInterval(timerInterval);
+            clearInterval(difficultyInterval);
             isRunning = false;
-            document.getElementById('gameArea').innerHTML = '';
             startGame();
         }
 
-        function pauseGame() {
-            if (isPaused) {
-                isPaused = false;
-                alert('▶️ Jogo retomado!');
-            } else {
-                isPaused = true;
-                alert('⏸️ Jogo pausado! Clique OK para continuar.');
-            }
+        function togglePause() {
+            if (!isRunning) return;
+            isPaused = !isPaused;
+            var btn = document.querySelector('.btn-pause');
+            btn.textContent = isPaused ? '▶️' : '⏸️';
         }
+
+        // Teclas
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Enter' && !isRunning) startGame();
+            if ((e.key === 'Escape' || e.key === 'p') && isRunning) togglePause();
+        });
 
         // Inicialização
         function init() {
-            updateHSDisplay();
+            updateHS();
             showScreen('startScreen');
-            console.log('🎃 Haunted Click pronto!');
-            console.log('🖱️ Clique em ENTRAR NA CASA para jogar!');
+            console.log('🎃 Haunted Click 2.0 - PRONTO!');
         }
 
-        // Suporte a tecla Enter
-        document.addEventListener('keydown', function(e) {
-            if (e.key === 'Enter' && !isRunning) {
-                startGame();
-            }
-        });
-
-        // Iniciar
         init();
     </script>
 </body>
