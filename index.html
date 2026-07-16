@@ -61,7 +61,6 @@
 
         <!-- TELA DO JOGO -->
         <section class="screen game-screen" id="gameScreen">
-            <!-- HUD -->
             <div class="hud">
                 <div class="hud-item">
                     <span class="hud-icon">🎯</span>
@@ -90,45 +89,30 @@
                 </div>
             </div>
 
-            <!-- Área de jogo -->
             <div class="game-area" id="gameArea">
                 <div class="house-background">
                     <div class="window window-1"></div>
                     <div class="window window-2"></div>
                     <div class="window window-3"></div>
                 </div>
-                
-                <!-- Fantasmas serão gerados aqui via JS -->
                 <div class="ghosts-container" id="ghostsContainer"></div>
-
-                <!-- Power-ups serão gerados aqui via JS -->
                 <div class="powerups-container" id="powerupsContainer"></div>
-
-                <!-- Efeito de clique -->
                 <div class="click-effect" id="clickEffect"></div>
             </div>
 
-            <!-- Barra de progresso -->
             <div class="progress-bar-container">
                 <div class="progress-bar" id="progressBar"></div>
             </div>
 
-            <!-- Botão pausar -->
-            <button class="btn btn-pause" id="pauseBtn" title="Pausar">
-                <span>⏸️</span>
-            </button>
+            <button class="btn btn-pause" id="pauseBtn" title="Pausar">⏸️</button>
         </section>
 
         <!-- TELA DE PAUSA -->
         <section class="screen pause-screen" id="pauseScreen">
             <h2 class="pause-title">JOGO PAUSADO</h2>
             <p class="pause-subtitle">Os fantasmas estão esperando...</p>
-            <button class="btn btn-resume" id="resumeBtn">
-                <span>▶️ CONTINUAR</span>
-            </button>
-            <button class="btn btn-quit" id="quitBtn">
-                <span>🚪 SAIR</span>
-            </button>
+            <button class="btn btn-resume" id="resumeBtn">▶️ CONTINUAR</button>
+            <button class="btn btn-quit" id="quitBtn">🚪 SAIR</button>
         </section>
 
         <!-- TELA DE GAME OVER -->
@@ -148,14 +132,11 @@
                 <span>Recorde: <strong id="gameoverHighScoreValue">0</strong></span>
             </div>
 
-            <button class="btn btn-restart" id="restartBtn">
-                <span>🔄 JOGAR NOVAMENTE</span>
-            </button>
+            <button class="btn btn-restart" id="restartBtn">🔄 JOGAR NOVAMENTE</button>
         </section>
 
     </main>
 
-    <!-- Áudio (opcional) -->
     <audio id="clickSound" preload="auto">
         <source src="https://www.soundjay.com/buttons/sounds/button-09.mp3" type="audio/mpeg">
     </audio>
