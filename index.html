@@ -3,153 +3,580 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Haunted Click - A Maldição da Casa Abandonada</title>
-    <link rel="stylesheet" href="style.css">
+    <title>Haunted Click - Halloween Game</title>
     <link href="https://fonts.googleapis.com/css2?family=Creepster&family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: #0a0a0a;
+            color: #e8e8e8;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            overflow: hidden;
+            user-select: none;
+        }
+
+        .game-container {
+            width: 100%;
+            max-width: 800px;
+            height: 95vh;
+            max-height: 700px;
+            background: #111;
+            border: 2px solid rgba(255,255,255,0.05);
+            border-radius: 24px;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.4);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .screen {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 32px;
+            text-align: center;
+        }
+
+        .screen.active {
+            display: flex;
+        }
+
+        /* Tela Inicial */
+        .start-screen {
+            background: radial-gradient(ellipse at center bottom, rgba(45, 27, 78, 0.4) 0%, transparent 70%), #111;
+            gap: 16px;
+        }
+
+        .moon {
+            width: 100px;
+            height: 100px;
+            background: radial-gradient(circle at 30% 30%, #e0c878, #c9a84c);
+            border-radius: 50%;
+            box-shadow: 0 0 40px rgba(201, 168, 76, 0.5);
+            animation: moonGlow 3s ease-in-out infinite;
+        }
+
+        @keyframes moonGlow {
+            0%, 100% { box-shadow: 0 0 40px rgba(201, 168, 76, 0.5); }
+            50% { box-shadow: 0 0 60px rgba(201, 168, 76, 0.7); }
+        }
+
+        .bats {
+            font-size: 24px;
+            animation: batFly 4s linear infinite;
+        }
+
+        @keyframes batFly {
+            0%, 100% { transform: translateX(0); }
+            50% { transform: translateX(30px); }
+        }
+
+        .game-title {
+            font-family: 'Creepster', cursive;
+            font-size: 3rem;
+            text-shadow: 2px 2px 0 rgba(0,0,0,0.5);
+        }
+
+        .title-haunted {
+            color: #c75100;
+            display: block;
+        }
+
+        .title-click {
+            color: #c9a84c;
+            display: block;
+            font-size: 1.2em;
+        }
+
+        .subtitle {
+            font-size: 0.8rem;
+            color: rgba(255,255,255,0.5);
+            letter-spacing: 3px;
+            text-transform: uppercase;
+        }
+
+        .btn {
+            font-family: 'Inter', sans-serif;
+            font-weight: 700;
+            border: none;
+            border-radius: 12px;
+            cursor: pointer;
+            padding: 16px 40px;
+            font-size: 1.1rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            transition: all 0.2s;
+        }
+
+        .btn-start {
+            background: linear-gradient(135deg, #c75100, #8b0000);
+            color: white;
+            box-shadow: 0 4px 0 rgba(0,0,0,0.3), 0 0 30px rgba(199, 81, 0, 0.3);
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { box-shadow: 0 4px 0 rgba(0,0,0,0.3), 0 0 30px rgba(199, 81, 0, 0.3); }
+            50% { box-shadow: 0 4px 0 rgba(0,0,0,0.3), 0 0 50px rgba(199, 81, 0, 0.5); }
+        }
+
+        .btn-start:hover {
+            transform: translateY(-2px);
+        }
+
+        .btn-restart {
+            background: linear-gradient(135deg, #4a2d7a, #2d1b4e);
+            color: white;
+            box-shadow: 0 4px 0 rgba(0,0,0,0.3);
+        }
+
+        .high-score {
+            color: #c9a84c;
+            font-size: 0.9rem;
+            background: rgba(201, 168, 76, 0.1);
+            padding: 8px 16px;
+            border-radius: 20px;
+            border: 1px solid rgba(201, 168, 76, 0.2);
+        }
+
+        /* Tela do Jogo */
+        .game-screen {
+            background: radial-gradient(ellipse at center, rgba(45, 27, 78, 0.3) 0%, transparent 60%), #111;
+            padding: 16px;
+            gap: 12px;
+        }
+
+        .hud {
+            display: flex;
+            gap: 12px;
+            justify-content: center;
+            flex-wrap: wrap;
+            padding: 12px;
+            background: rgba(0,0,0,0.4);
+            border-radius: 16px;
+            border: 1px solid rgba(255,255,255,0.05);
+        }
+
+        .hud-item {
+            text-align: center;
+            min-width: 60px;
+        }
+
+        .hud-label {
+            font-size: 0.6rem;
+            text-transform: uppercase;
+            color: rgba(255,255,255,0.4);
+        }
+
+        .hud-value {
+            font-family: 'Creepster', cursive;
+            font-size: 1.3rem;
+            color: #c9a84c;
+        }
+
+        .game-area {
+            flex: 1;
+            width: 100%;
+            background: rgba(0,0,0,0.3);
+            border-radius: 16px;
+            border: 1px solid rgba(255,255,255,0.05);
+            position: relative;
+            overflow: hidden;
+            cursor: crosshair;
+        }
+
+        .ghost {
+            position: absolute;
+            font-size: 50px;
+            cursor: pointer;
+            animation: ghostAppear 0.3s ease-out;
+            transition: transform 0.2s;
+            z-index: 10;
+        }
+
+        .ghost:hover {
+            transform: scale(1.2);
+        }
+
+        @keyframes ghostAppear {
+            from { transform: scale(0); opacity: 0; }
+            to { transform: scale(1); opacity: 1; }
+        }
+
+        .progress-bar-container {
+            width: 100%;
+            height: 6px;
+            background: rgba(255,255,255,0.05);
+            border-radius: 3px;
+            overflow: hidden;
+        }
+
+        .progress-bar {
+            height: 100%;
+            background: linear-gradient(90deg, #c75100, #c9a84c);
+            transition: width 0.3s;
+        }
+
+        /* Tela Game Over */
+        .gameover-screen {
+            background: radial-gradient(ellipse at center, rgba(139, 0, 0, 0.3) 0%, transparent 60%), #111;
+            gap: 16px;
+        }
+
+        .skull {
+            font-size: 72px;
+        }
+
+        .gameover-title {
+            font-family: 'Creepster', cursive;
+            font-size: 2rem;
+            color: #c0392b;
+        }
+
+        .final-score {
+            font-family: 'Creepster', cursive;
+            font-size: 3rem;
+            color: #c9a84c;
+        }
+
+        .instructions {
+            font-size: 0.75rem;
+            color: rgba(255,255,255,0.4);
+            display: flex;
+            gap: 16px;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        .instructions span {
+            background: rgba(255,255,255,0.03);
+            padding: 6px 12px;
+            border-radius: 6px;
+            border: 1px solid rgba(255,255,255,0.05);
+        }
+
+        @media (max-width: 600px) {
+            .game-container {
+                height: 100vh;
+                max-height: 100vh;
+                border-radius: 0;
+            }
+            .ghost {
+                font-size: 40px;
+            }
+            .game-title {
+                font-size: 2rem;
+            }
+        }
+    </style>
 </head>
 <body>
-    <!-- Névoa de fundo -->
-    <div class="fog-container">
-        <div class="fog fog-1"></div>
-        <div class="fog fog-2"></div>
-        <div class="fog fog-3"></div>
-    </div>
 
-    <!-- Relâmpagos -->
-    <div class="lightning" id="lightning"></div>
-
-    <!-- Container principal -->
-    <main class="game-container">
+    <div class="game-container">
         
         <!-- TELA INICIAL -->
-        <section class="screen start-screen active" id="startScreen">
-            <div class="moon-container">
-                <div class="moon"></div>
-                <div class="bats">
-                    <span class="bat bat-1">🦇</span>
-                    <span class="bat bat-2">🦇</span>
-                    <span class="bat bat-3">🦇</span>
-                </div>
+        <div class="screen start-screen active" id="startScreen">
+            <div class="moon"></div>
+            <div class="bats">🦇</div>
+            <div class="game-title">
+                <span class="title-haunted">HAUNTED</span>
+                <span class="title-click">CLICK</span>
             </div>
-            
-            <div class="title-container">
-                <h1 class="game-title">
-                    <span class="title-haunted">HAUNTED</span>
-                    <span class="title-click">CLICK</span>
-                </h1>
-                <p class="subtitle">A Maldição da Casa Abandonada</p>
-            </div>
-
-            <div class="house-icon">🏚️</div>
-            
-            <button class="btn btn-start" id="startBtn">
-                <span class="btn-text">ENTRAR NA CASA</span>
-                <span class="btn-icon">🚪</span>
+            <p class="subtitle">A Maldição da Casa Abandonada</p>
+            <button class="btn btn-start" id="startBtn" onclick="startGame()">
+                🚪 ENTRAR NA CASA
             </button>
-
-            <div class="high-score-display" id="startHighScore">
-                <span class="trophy">🏆</span>
-                <span>Recorde: <strong id="startHighScoreValue">0</strong></span>
+            <div class="high-score">
+                🏆 Recorde: <strong id="highScoreDisplay">0</strong>
             </div>
-
             <div class="instructions">
-                <p>🖱️ Clique nos fantasmas para eliminá-los</p>
-                <p>⚡ Combos aumentam sua pontuação</p>
-                <p>💀 3 vidas - não deixe escapar!</p>
+                <span>🖱️ Clique nos fantasmas</span>
+                <span>⚡ Combos = +pontos</span>
+                <span>💀 3 vidas</span>
             </div>
-        </section>
+        </div>
 
         <!-- TELA DO JOGO -->
-        <section class="screen game-screen" id="gameScreen">
+        <div class="screen game-screen" id="gameScreen">
             <div class="hud">
                 <div class="hud-item">
-                    <span class="hud-icon">🎯</span>
-                    <span class="hud-label">Score</span>
-                    <span class="hud-value" id="score">0</span>
+                    <div class="hud-label">Score</div>
+                    <div class="hud-value" id="scoreDisplay">0</div>
                 </div>
                 <div class="hud-item">
-                    <span class="hud-icon">⚡</span>
-                    <span class="hud-label">Combo</span>
-                    <span class="hud-value" id="combo">x1</span>
+                    <div class="hud-label">Combo</div>
+                    <div class="hud-value" id="comboDisplay">x1</div>
                 </div>
                 <div class="hud-item">
-                    <span class="hud-icon">💀</span>
-                    <span class="hud-label">Vidas</span>
-                    <span class="hud-value" id="lives">3</span>
+                    <div class="hud-label">Vidas</div>
+                    <div class="hud-value" id="livesDisplay">💀💀💀</div>
                 </div>
                 <div class="hud-item">
-                    <span class="hud-icon">⏱️</span>
-                    <span class="hud-label">Tempo</span>
-                    <span class="hud-value" id="timer">60s</span>
+                    <div class="hud-label">Tempo</div>
+                    <div class="hud-value" id="timerDisplay">60s</div>
                 </div>
                 <div class="hud-item">
-                    <span class="hud-icon">📊</span>
-                    <span class="hud-label">Nível</span>
-                    <span class="hud-value" id="level">1</span>
+                    <div class="hud-label">Nível</div>
+                    <div class="hud-value" id="levelDisplay">1</div>
                 </div>
             </div>
 
             <div class="game-area" id="gameArea">
-                <div class="house-background">
-                    <div class="window window-1"></div>
-                    <div class="window window-2"></div>
-                    <div class="window window-3"></div>
-                </div>
-                <div class="ghosts-container" id="ghostsContainer"></div>
-                <div class="powerups-container" id="powerupsContainer"></div>
-                <div class="click-effect" id="clickEffect"></div>
+                <!-- Fantasmas aparecem aqui -->
             </div>
 
             <div class="progress-bar-container">
-                <div class="progress-bar" id="progressBar"></div>
+                <div class="progress-bar" id="progressBar" style="width: 100%"></div>
             </div>
 
-            <button class="btn btn-pause" id="pauseBtn" title="Pausar">⏸️</button>
-        </section>
+            <button class="btn btn-start" style="padding:8px 16px;font-size:0.8rem;position:absolute;top:12px;right:12px;z-index:20;" onclick="pauseGame()">
+                ⏸️
+            </button>
+        </div>
 
-        <!-- TELA DE PAUSA -->
-        <section class="screen pause-screen" id="pauseScreen">
-            <h2 class="pause-title">JOGO PAUSADO</h2>
-            <p class="pause-subtitle">Os fantasmas estão esperando...</p>
-            <button class="btn btn-resume" id="resumeBtn">▶️ CONTINUAR</button>
-            <button class="btn btn-quit" id="quitBtn">🚪 SAIR</button>
-        </section>
-
-        <!-- TELA DE GAME OVER -->
-        <section class="screen gameover-screen" id="gameoverScreen">
-            <div class="gameover-skull">💀</div>
+        <!-- TELA GAME OVER -->
+        <div class="screen gameover-screen" id="gameoverScreen">
+            <div class="skull">💀</div>
             <h2 class="gameover-title">VOCÊ FOI AMALDIÇOADO!</h2>
+            <p style="color:rgba(255,255,255,0.5)">Pontuação Final</p>
+            <div class="final-score" id="finalScoreDisplay">0</div>
+            <p style="color:rgba(255,255,255,0.5);font-size:0.85rem" id="finalStats"></p>
+            <div class="high-score" id="gameoverHighScore">
+                🏆 Recorde: <strong id="gameoverHSValue">0</strong>
+            </div>
+            <button class="btn btn-restart" onclick="restartGame()">
+                🔄 JOGAR NOVAMENTE
+            </button>
+        </div>
+    </div>
+
+    <script>
+        // ============================================
+        // HAUNTED CLICK - JOGO SIMPLES E FUNCIONAL
+        // ============================================
+
+        var score = 0;
+        var combo = 1;
+        var maxCombo = 1;
+        var lives = 3;
+        var timeLeft = 60;
+        var level = 1;
+        var isRunning = false;
+        var isPaused = false;
+        var ghostSpeed = 2000;
+        var maxGhosts = 3;
+        var ghostsActive = 0;
+        var spawnInterval = null;
+        var timerInterval = null;
+
+        // Sons
+        function playSound(type) {
+            try {
+                var s = new Audio();
+                if (type === 'click') s.src = 'https://www.soundjay.com/buttons/sounds/button-09.mp3';
+                else if (type === 'miss') s.src = 'https://www.soundjay.com/buttons/sounds/button-10.mp3';
+                else if (type === 'gameover') s.src = 'https://www.soundjay.com/misc/sounds/fail-buzzer-01.mp3';
+                s.play().catch(function(){});
+            } catch(e) {}
+        }
+
+        function showScreen(name) {
+            document.getElementById('startScreen').classList.remove('active');
+            document.getElementById('gameScreen').classList.remove('active');
+            document.getElementById('gameoverScreen').classList.remove('active');
+            document.getElementById(name).classList.add('active');
+        }
+
+        function getHS() {
+            return parseInt(localStorage.getItem('hauntedHS')) || 0;
+        }
+
+        function saveHS(s) {
+            if (s > getHS()) localStorage.setItem('hauntedHS', s);
+        }
+
+        function updateHSDisplay() {
+            var hs = getHS();
+            document.getElementById('highScoreDisplay').textContent = hs;
+            document.getElementById('gameoverHSValue').textContent = hs;
+        }
+
+        function updateHUD() {
+            document.getElementById('scoreDisplay').textContent = score;
+            document.getElementById('comboDisplay').textContent = 'x' + combo;
+            document.getElementById('timerDisplay').textContent = timeLeft + 's';
+            document.getElementById('levelDisplay').textContent = level;
             
-            <div class="final-score-container">
-                <p class="final-score-label">Pontuação Final</p>
-                <p class="final-score-value" id="finalScore">0</p>
-                <p class="final-combo" id="finalCombo">Melhor Combo: x1</p>
-                <p class="final-level" id="finalLevel">Nível Alcançado: 1</p>
-            </div>
+            // Vidas
+            var h = '';
+            for (var i = 0; i < lives; i++) h += '💀';
+            for (var i = lives; i < 3; i++) h += '🖤';
+            document.getElementById('livesDisplay').textContent = h;
+            
+            // Progresso
+            document.getElementById('progressBar').style.width = (timeLeft / 60 * 100) + '%';
+        }
 
-            <div class="high-score-final" id="gameoverHighScore">
-                <span class="trophy">🏆</span>
-                <span>Recorde: <strong id="gameoverHighScoreValue">0</strong></span>
-            </div>
+        function createGhost() {
+            if (!isRunning || isPaused || ghostsActive >= maxGhosts) return;
+            
+            var area = document.getElementById('gameArea');
+            var ghost = document.createElement('div');
+            ghost.className = 'ghost';
+            ghost.textContent = '👻';
+            ghost.style.left = Math.random() * (area.clientWidth - 60) + 'px';
+            ghost.style.top = Math.random() * (area.clientHeight - 60) + 'px';
+            
+            ghost.onclick = function(e) {
+                e.stopPropagation();
+                var pts = 10 * combo;
+                score += pts;
+                combo++;
+                if (combo > maxCombo) maxCombo = combo;
+                
+                // Efeito
+                ghost.style.transform = 'scale(2)';
+                ghost.style.opacity = '0';
+                ghost.style.transition = 'all 0.3s';
+                
+                playSound('click');
+                
+                setTimeout(function() {
+                    ghost.remove();
+                    ghostsActive--;
+                }, 300);
+                
+                // Level up
+                var newLevel = Math.floor(score / 100) + 1;
+                if (newLevel > level) {
+                    level = newLevel;
+                    maxGhosts = 3 + Math.floor((level - 1) / 2);
+                    ghostSpeed = Math.max(800, 2000 - (level - 1) * 150);
+                }
+                
+                updateHUD();
+            };
+            
+            area.appendChild(ghost);
+            ghostsActive++;
+            
+            // Timeout - fantasma foge
+            var timeout = setTimeout(function() {
+                if (ghost.parentNode) {
+                    ghost.remove();
+                    ghostsActive--;
+                    combo = 1;
+                    lives--;
+                    playSound('miss');
+                    updateHUD();
+                    
+                    if (lives <= 0) endGame();
+                }
+            }, ghostSpeed);
+            
+            ghost._timeout = timeout;
+        }
 
-            <button class="btn btn-restart" id="restartBtn">🔄 JOGAR NOVAMENTE</button>
-        </section>
+        function startGame() {
+            console.log('🎃 Iniciando jogo...');
+            
+            score = 0;
+            combo = 1;
+            maxCombo = 1;
+            lives = 3;
+            timeLeft = 60;
+            level = 1;
+            isRunning = true;
+            isPaused = false;
+            ghostSpeed = 2000;
+            maxGhosts = 3;
+            ghostsActive = 0;
+            
+            document.getElementById('gameArea').innerHTML = '';
+            
+            updateHUD();
+            showScreen('gameScreen');
+            
+            // Spawn de fantasmas
+            spawnInterval = setInterval(function() {
+                createGhost();
+            }, 1000);
+            
+            // Timer
+            timerInterval = setInterval(function() {
+                if (!isPaused) {
+                    timeLeft--;
+                    updateHUD();
+                    if (timeLeft <= 0) endGame();
+                }
+            }, 1000);
+        }
 
-    </main>
+        function endGame() {
+            isRunning = false;
+            clearInterval(spawnInterval);
+            clearInterval(timerInterval);
+            
+            playSound('gameover');
+            saveHS(score);
+            
+            document.getElementById('finalScoreDisplay').textContent = score;
+            document.getElementById('finalStats').textContent = 'Combo Max: x' + maxCombo + ' | Nível: ' + level;
+            updateHSDisplay();
+            
+            showScreen('gameoverScreen');
+            console.log('💀 Game Over! Score: ' + score);
+        }
 
-    <audio id="clickSound" preload="auto">
-        <source src="https://www.soundjay.com/buttons/sounds/button-09.mp3" type="audio/mpeg">
-    </audio>
-    <audio id="comboSound" preload="auto">
-        <source src="https://www.soundjay.com/buttons/sounds/button-28.mp3" type="audio/mpeg">
-    </audio>
-    <audio id="missSound" preload="auto">
-        <source src="https://www.soundjay.com/buttons/sounds/button-10.mp3" type="audio/mpeg">
-    </audio>
-    <audio id="gameoverSound" preload="auto">
-        <source src="https://www.soundjay.com/misc/sounds/fail-buzzer-01.mp3" type="audio/mpeg">
-    </audio>
+        function restartGame() {
+            clearInterval(spawnInterval);
+            clearInterval(timerInterval);
+            isRunning = false;
+            document.getElementById('gameArea').innerHTML = '';
+            startGame();
+        }
 
-    <script src="script.js"></script>
+        function pauseGame() {
+            if (isPaused) {
+                isPaused = false;
+                alert('▶️ Jogo retomado!');
+            } else {
+                isPaused = true;
+                alert('⏸️ Jogo pausado! Clique OK para continuar.');
+            }
+        }
+
+        // Inicialização
+        function init() {
+            updateHSDisplay();
+            showScreen('startScreen');
+            console.log('🎃 Haunted Click pronto!');
+            console.log('🖱️ Clique em ENTRAR NA CASA para jogar!');
+        }
+
+        // Suporte a tecla Enter
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Enter' && !isRunning) {
+                startGame();
+            }
+        });
+
+        // Iniciar
+        init();
+    </script>
 </body>
 </html>
