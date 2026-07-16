@@ -1,8 +1,8 @@
+
 /* ============================================
    HAUNTED CLICK - CSS PROFISSIONAL
    ============================================ */
 
-/* --- RESET & BASE --- */
 *, *::before, *::after {
     margin: 0;
     padding: 0;
@@ -10,7 +10,6 @@
 }
 
 :root {
-    /* Paleta Principal */
     --preto-profundo: #0a0a0a;
     --preto-card: #111111;
     --laranja-queimado: #c75100;
@@ -24,25 +23,14 @@
     --cinza-nevoa: #2a2a2a;
     --branco-fantasma: #e8e8e8;
     --branco: #f5f5f5;
-    
-    /* Cores de feedback */
     --sucesso: #27ae60;
     --perigo: #e74c3c;
     --alerta: #f39c12;
-    
-    /* Fontes */
     --fonte-gotica: 'Creepster', cursive;
     --fonte-principal: 'Inter', sans-serif;
-    
-    /* Sombras */
     --sombra-texto: 2px 2px 0px rgba(0,0,0,0.5);
     --sombra-card: 0 8px 32px rgba(0,0,0,0.4);
     --sombra-botao: 0 4px 0px rgba(0,0,0,0.3);
-    
-    /* Transições */
-    --transicao-rapida: 0.2s ease;
-    --transicao-media: 0.3s ease;
-    --transicao-lenta: 0.5s ease;
 }
 
 html, body {
@@ -61,7 +49,6 @@ body {
     user-select: none;
     -webkit-user-select: none;
     -webkit-tap-highlight-color: transparent;
-    cursor: none;
 }
 
 /* --- NÉVOA DE FUNDO --- */
@@ -143,10 +130,7 @@ body {
     background: var(--preto-card);
     border: 2px solid rgba(255,255,255,0.05);
     border-radius: 24px;
-    box-shadow: 
-        var(--sombra-card),
-        inset 0 1px 0 rgba(255,255,255,0.03),
-        0 0 100px rgba(199, 81, 0, 0.08);
+    box-shadow: var(--sombra-card), inset 0 1px 0 rgba(255,255,255,0.03), 0 0 100px rgba(199, 81, 0, 0.08);
     overflow: hidden;
 }
 
@@ -163,7 +147,7 @@ body {
     justify-content: center;
     opacity: 0;
     pointer-events: none;
-    transition: opacity var(--transicao-media);
+    transition: opacity 0.3s ease;
     padding: 32px;
 }
 
@@ -184,7 +168,6 @@ body {
     gap: 16px;
 }
 
-/* Lua */
 .moon-container {
     position: relative;
     width: 120px;
@@ -198,12 +181,8 @@ body {
     margin: 10px auto;
     background: radial-gradient(circle at 30% 30%, var(--dourado-claro), var(--dourado));
     border-radius: 50%;
-    box-shadow: 
-        0 0 40px rgba(201, 168, 76, 0.5),
-        0 0 80px rgba(201, 168, 76, 0.3),
-        0 0 120px rgba(201, 168, 76, 0.15);
+    box-shadow: 0 0 40px rgba(201, 168, 76, 0.5), 0 0 80px rgba(201, 168, 76, 0.3);
     animation: moonGlow 3s ease-in-out infinite;
-    position: relative;
 }
 
 .moon::before {
@@ -215,10 +194,7 @@ body {
     height: 20px;
     background: rgba(0,0,0,0.3);
     border-radius: 50%;
-    box-shadow: 
-        25px 15px 0 rgba(0,0,0,0.2),
-        15px 35px 0 rgba(0,0,0,0.15),
-        35px 40px 0 rgba(0,0,0,0.1);
+    box-shadow: 25px 15px 0 rgba(0,0,0,0.2), 15px 35px 0 rgba(0,0,0,0.15), 35px 40px 0 rgba(0,0,0,0.1);
 }
 
 @keyframes moonGlow {
@@ -226,7 +202,6 @@ body {
     50% { box-shadow: 0 0 60px rgba(201, 168, 76, 0.7), 0 0 100px rgba(201, 168, 76, 0.4); }
 }
 
-/* Morcegos */
 .bats {
     position: absolute;
     top: 0;
@@ -243,28 +218,9 @@ body {
     opacity: 0.8;
 }
 
-.bat-1 {
-    top: -10px;
-    left: -30px;
-    animation-duration: 4s;
-    animation-delay: 0s;
-}
-
-.bat-2 {
-    top: 20px;
-    right: -40px;
-    animation-duration: 5s;
-    animation-delay: -2s;
-    font-size: 18px;
-}
-
-.bat-3 {
-    bottom: 0;
-    left: -20px;
-    animation-duration: 6s;
-    animation-delay: -4s;
-    font-size: 20px;
-}
+.bat-1 { top: -10px; left: -30px; animation-duration: 4s; }
+.bat-2 { top: 20px; right: -40px; animation-duration: 5s; animation-delay: -2s; font-size: 18px; }
+.bat-3 { bottom: 0; left: -20px; animation-duration: 6s; animation-delay: -4s; font-size: 20px; }
 
 @keyframes batFly {
     0% { transform: translate(0, 0); }
@@ -274,7 +230,6 @@ body {
     100% { transform: translate(0, 0); }
 }
 
-/* Título */
 .game-title {
     font-family: var(--fonte-gotica);
     font-size: clamp(2.5rem, 6vw, 3.5rem);
@@ -299,7 +254,6 @@ body {
     0%, 100% { opacity: 1; }
     5% { opacity: 0.8; }
     10% { opacity: 1; }
-    50% { opacity: 1; }
     52% { opacity: 0.9; }
     54% { opacity: 1; }
 }
@@ -313,7 +267,6 @@ body {
     margin-top: 4px;
 }
 
-/* Ícone da casa */
 .house-icon {
     font-size: 48px;
     animation: houseFloat 2s ease-in-out infinite;
@@ -331,7 +284,7 @@ body {
     border: none;
     border-radius: 12px;
     cursor: pointer;
-    transition: all var(--transicao-rapida);
+    transition: all 0.2s ease;
     position: relative;
     overflow: hidden;
     text-transform: uppercase;
@@ -353,6 +306,7 @@ body {
     align-items: center;
     gap: 10px;
     animation: pulseButton 2s ease-in-out infinite;
+    z-index: 10;
 }
 
 .btn-start:hover {
@@ -409,7 +363,6 @@ body {
     backdrop-filter: blur(10px);
 }
 
-/* High Score */
 .high-score-display {
     display: flex;
     align-items: center;
@@ -422,11 +375,8 @@ body {
     border: 1px solid rgba(201, 168, 76, 0.2);
 }
 
-.trophy {
-    font-size: 1.2rem;
-}
+.trophy { font-size: 1.2rem; }
 
-/* Instruções */
 .instructions {
     display: flex;
     gap: 20px;
@@ -449,13 +399,11 @@ body {
    ============================================ */
 
 .game-screen {
-    background: radial-gradient(ellipse at center, rgba(45, 27, 78, 0.3) 0%, transparent 60%),
-                var(--preto-card);
+    background: radial-gradient(ellipse at center, rgba(45, 27, 78, 0.3) 0%, transparent 60%), var(--preto-card);
     padding: 16px;
     gap: 12px;
 }
 
-/* HUD */
 .hud {
     display: flex;
     gap: 12px;
@@ -480,9 +428,7 @@ body {
     min-width: 60px;
 }
 
-.hud-icon {
-    font-size: 1.2rem;
-}
+.hud-icon { font-size: 1.2rem; }
 
 .hud-label {
     font-size: 0.6rem;
@@ -498,7 +444,6 @@ body {
     text-shadow: 0 0 10px rgba(201, 168, 76, 0.3);
 }
 
-/* Área do jogo */
 .game-area {
     flex: 1;
     width: 100%;
@@ -507,6 +452,7 @@ body {
     border-radius: 16px;
     border: 1px solid rgba(255,255,255,0.05);
     overflow: hidden;
+    cursor: crosshair;
 }
 
 .house-background {
@@ -539,7 +485,6 @@ body {
     90% { background: rgba(255, 200, 100, 0.05); }
 }
 
-/* Fantasmas */
 .ghosts-container,
 .powerups-container {
     position: absolute;
@@ -556,7 +501,7 @@ body {
     cursor: pointer;
     pointer-events: all;
     animation: ghostAppear 0.3s ease-out;
-    transition: transform var(--transicao-rapida);
+    transition: transform 0.2s ease;
     filter: drop-shadow(0 0 10px rgba(199, 81, 0, 0.5));
 }
 
@@ -579,7 +524,6 @@ body {
     100% { transform: scale(2); opacity: 0; filter: blur(10px); }
 }
 
-/* Power-ups */
 .powerup {
     position: absolute;
     font-size: 30px;
@@ -604,7 +548,6 @@ body {
     50% { margin-top: -10px; }
 }
 
-/* Efeito de clique */
 .click-effect {
     position: absolute;
     pointer-events: none;
@@ -620,7 +563,6 @@ body {
     100% { opacity: 0; transform: translateY(-50px) scale(1.5); }
 }
 
-/* Barra de progresso */
 .progress-bar-container {
     width: 100%;
     height: 6px;
@@ -664,8 +606,7 @@ body {
    ============================================ */
 
 .gameover-screen {
-    background: radial-gradient(ellipse at center, rgba(139, 0, 0, 0.3) 0%, transparent 60%),
-                var(--preto-card);
+    background: radial-gradient(ellipse at center, rgba(139, 0, 0, 0.3) 0%, transparent 60%), var(--preto-card);
     text-align: center;
     gap: 16px;
 }
@@ -735,56 +676,11 @@ body {
         border: none;
     }
     
-    .screen {
-        padding: 20px;
-    }
-    
-    .hud {
-        gap: 6px;
-    }
-    
-    .hud-item {
-        padding: 4px 8px;
-        min-width: 50px;
-    }
-    
-    .hud-value {
-        font-size: 1rem;
-    }
-    
-    .ghost {
-        font-size: 40px;
-    }
-    
-    .game-title {
-        font-size: 2rem;
-    }
-    
-    .instructions {
-        flex-direction: column;
-        gap: 8px;
-    }
-}
-
-@media (max-width: 400px) {
-    .hud {
-        gap: 4px;
-    }
-    
-    .hud-item {
-        padding: 3px 6px;
-        min-width: 45px;
-    }
-    
-    .hud-icon {
-        font-size: 1rem;
-    }
-    
-    .hud-label {
-        font-size: 0.5rem;
-    }
-    
-    .hud-value {
-        font-size: 0.9rem;
-    }
+    .screen { padding: 20px; }
+    .hud { gap: 6px; }
+    .hud-item { padding: 4px 8px; min-width: 50px; }
+    .hud-value { font-size: 1rem; }
+    .ghost { font-size: 40px; }
+    .game-title { font-size: 2rem; }
+    .instructions { flex-direction: column; gap: 8px; }
 }
